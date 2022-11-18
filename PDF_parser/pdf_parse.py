@@ -11,6 +11,7 @@ So an original line 'lie (tell a lie) v., n. B1' is separated into 2 rows (due t
 lie, (tell a lie), v., B1
 lie, (tell a lie), n., B1
 """
+import os
 import re
 import csv
 from openpyxl import Workbook
@@ -233,16 +234,25 @@ def line_alligner(a_list):
 
 
 def main(filename):
+    '''
+    The main body of the script
+    '''
     global valid_parts
 
+    print(f'\nParsing the file ---> "{filename}"')
+
+    #compute paths
+    curr_dir = os.getcwd()
+    file_abs_path = os.path.join(curr_dir, "PDF_parser", "Original", filename)
+
     #initialize objects for further parsing
-    reader = PdfReader(filename)
+    reader = PdfReader(file_abs_path)
     text_1st_page = reader.pages[0]
     text_other_pages = reader.pages[1:]
     valid_parts = []
 
     #this block converts (reader) objects into multiline strings
-    ###################################################
+    ################################################################
     #parse the first PDF page
     text_1st_page.extract_text(visitor_text = visitor_body_1st_page)
     valid_parts += "\n"
@@ -251,7 +261,7 @@ def main(filename):
     for page in text_other_pages:
         page.extract_text(visitor_text = visitor_body_other_pages) + "\n"
     text_body = "".join(valid_parts)
-    ###################################################
+    ################################################################
 
     #partition the multiline text string into a list of lists (line = list) with each word separated
     text_lst = [ [s.strip(",") for s in line.split() if s] for line in text_body.split('\n') if line]
@@ -284,38 +294,50 @@ def main(filename):
 
     #creates the final csv file from the (text_lst) list of lists
     csv_filename = filename[: -4] + '.csv'
+    csv_abs_path = os.path.join(curr_dir, "PDF_parser", "Parsed", csv_filename)
     header = ['Word', 'Comments', 'Part of Speech', 'Level', 'Duplicate']
-    with open(csv_filename, 'w', encoding='UTF8', newline='') as f:
+    with open(csv_abs_path, 'w', encoding='UTF8', newline='') as f:
         writer = csv.writer(f)
         # write the header
         writer.writerow(header)
         # write multiple rows
         writer.writerows(text_lst)
 
-    #exports csv data to the excel format file
-    wb = Workbook()
-    ws = wb.active
-    excel_filename = filename[: -4] + '.xlsx'
-    with open(csv_filename, 'r') as f:
-        for row in csv.reader(f):
-            ws.append(row)
-    wb.save(excel_filename)
-
-    print(f"{filename} has been successfully parsed", '\n')
+    #ask the user whether to export to the Excel format
+    valid_input = False
+    while not valid_input:
+        user_input = input('Do you want to export the file to the Excel format?\nValid entries: "yes" or "no"\n')
+        valid_input = user_input in {'yes', 'no'}    
     
-    '''
-    #troubleshooting block
-    with open("Output.txt", "w") as text_file:
-        text_file.write(str(text_lst))
-    return 
-    '''    
+    if user_input == 'yes':
+        #exports csv data to the excel format file
+        wb = Workbook()
+        ws = wb.active
+        excel_filename = filename[: -4] + '.xlsx'
+        xlsx_abs_path = os.path.join(curr_dir, "PDF_parser", "Parsed", excel_filename)
+        with open(csv_abs_path, 'r', encoding='UTF8') as f:
+            for row in csv.reader(f):
+                ws.append(row)
+        wb.save(xlsx_abs_path)
+
+    print(f'\n"{filename}" has been successfully parsed')     
 
 
 if __name__ == "__main__":
     '''
     Choose which file to parse and run (main) 
     '''
-    FILENAME_1 = 'The_Oxford_3000.pdf'
-    FILENAME_2 = 'The_Oxford_5000.pdf'
-    main(FILENAME_1)
+    print('<<< SCRIPT START >>>\n')
+
+    #ask user to choose the dictionary for parsing
+    valid_input = False
+    while not valid_input:
+        user_input = input('Choose which dictionary to parse\nValid entries: "3000" or "5000"\n')
+        valid_input = user_input in {'3000', '5000'}
+    
+    filename = 'The_Oxford_' + user_input + '.pdf'
+    
+    main(filename)
+
+    print('\n<<< SCRIPT END >>>\n')
 
