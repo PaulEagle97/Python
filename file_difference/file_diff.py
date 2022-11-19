@@ -103,12 +103,12 @@ def multiline_diff(lines1, lines2):
     return IDENTICAL, IDENTICAL
 
 
-def get_file_lines(filename):
+def get_file_lines(file_loc):
     """
     Inputs:
-        filename - name of file to read
+        file_loc - location of file to read
     Output:
-        Returns a list of lines from the file named filename.  Each
+        Returns a list of lines from the file at (file_loc).  Each
         line will be a single line string with no newline ('\n') or
         return ('\r') characters.
 
@@ -116,28 +116,28 @@ def get_file_lines(filename):
         behavior of this function is undefined.
     """
     #open, read the text file and then break it into lines
-    with open(filename, 'r', encoding='utf-8') as input_file:
+    with open(file_loc, 'r', encoding='utf-8') as input_file:
         return input_file.read().splitlines()
 
 
-def file_diff_format(filename1, filename2):
+def file_diff_format(file_loc1, file_loc2):
     """
     Inputs:
-        filename1 - location of first file
-        filename2 - location of second file
+        file_loc1 - location of first file
+        file_loc2 - location of second file
     Output:
         Returns a four line string showing the location of the first
         difference between the two files named by the inputs.
 
         If the files are identical, the function instead returns the
-        string "No differences\n".
+        string "The files are identical\n".
 
         If either file does not exist or is not readable, then the
         behavior of this function is undefined.
     """
     #read and convert each file to a list of lines
-    lines_1 = get_file_lines(filename1)
-    lines_2 = get_file_lines(filename2)
+    lines_1 = get_file_lines(file_loc1)
+    lines_2 = get_file_lines(file_loc2)
 
     #look for a difference between two lists
     line_num, diff_idx = multiline_diff(lines_1, lines_2)
@@ -158,11 +158,16 @@ def test():
     '''
     print('----------\nTEST START\n----------\n')
 
-    #computing path to test files
+    #computing absolute paths to test files
     curr_dir = os.getcwd()
-    test_dir = os.path.join(curr_dir, 'Tests')
-    print(test_dir)
-    return
+    test_dir = os.path.join(curr_dir, 'file_difference', 'Tests')
+    file1_loc = os.path.join(test_dir, 'file1.txt')
+    file2_loc = os.path.join(test_dir, 'file2.txt')
+    file3_loc = os.path.join(test_dir, 'file3.txt')
+    file6_loc = os.path.join(test_dir, 'file6.txt')
+    file7_loc = os.path.join(test_dir, 'file7.txt')
+    file8_loc = os.path.join(test_dir, 'file8.txt')
+    file10_loc = os.path.join(test_dir, 'file10.txt')
     
     #testing (singleline_diff) - PASS
     str_1 = '123456'
@@ -213,22 +218,24 @@ def test():
 
     #testing (get_file_lines) - PASS
     print('(get_file_lines)')
-    print(get_file_lines('file1.txt')) 
+    print(get_file_lines(file1_loc)) 
     #expected: ['engineering classes', 'science classes']
-    print(get_file_lines('file8.txt')) 
+    print(get_file_lines(file8_loc)) 
     #expected: ['abc']
-    print (get_file_lines('file10.txt')) 
+    print (get_file_lines(file10_loc)) 
     #expected: ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
     print('----------------')
-
+    
     #testing (file_diff_format) - PASS
     print('(file_diff_format)')
-    print(file_diff_format('file1.txt', 'file2.txt')) 
+    print(file_diff_format(file1_loc, file2_loc)) 
     #expected: "Line 1:\nscience classes\n=====^\nscienee classes\n"
-    print(file_diff_format('file1.txt', 'file3.txt')) 
+    print(file_diff_format(file1_loc, file3_loc)) 
     #expected: "Line 0:\engineering classes\n=====^\nenginneering classes\n"
-    print(file_diff_format('file6.txt', 'file7.txt')) 
+    print(file_diff_format(file6_loc, file7_loc)) 
     #expected: "The files are identical\n"
+
+    print('----------\nTEST END\n----------\n')
 
 
 if __name__ == '__main__':
