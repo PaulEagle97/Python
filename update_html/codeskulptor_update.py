@@ -3,6 +3,8 @@ Week 4 practice project template for Python Data Representation
 Update syntax for print in CodeSkulptor Docs
 from "print ..." syntax in Python 2 to "print(...)" syntax for Python 3
 """
+import re
+import os
 
 
 def update_line(line):
@@ -10,8 +12,6 @@ def update_line(line):
     Takes a string line representing a single line of code
     and returns a string with 'print' updated
     """
-    POSTFIX = "</pre>"
-
     #find the index of 'print' occurrence
     print_idx = line.find('print')
 
@@ -53,20 +53,18 @@ def update_pre_block(pre_block):
     return updated_block
 
 
-def update_file(input_file_name, output_file_name):
+def update_file(input_file_loc, output_file_loc):
     """
     Open and read the file specified by the string input_file_name
     Proccess the <pre> blocks in the loaded text to update print syntax
     Write the update text to the file specified by the string output_file_name
     """
-    import re
-
     # HTML tags that bound example code
     PREFIX = "<pre class='cm'>"
     POSTFIX = "</pre>"
 
     # open and read the original html file
-    with open(input_file_name, 'r') as input_file:
+    with open(input_file_loc, 'r', encoding='utf-8') as input_file:
         old_data = input_file.read()
         new_data = ''
         # a generator of start indexes of each block that needs to be updated
@@ -87,7 +85,7 @@ def update_file(input_file_name, output_file_name):
         new_data += old_data[end_idx: ]
 
     # writing the updated data to the output file
-    with open(output_file_name, 'w') as output_file:
+    with open(output_file_loc, 'w', encoding='utf-8') as output_file:
         output_file.write(new_data)
 
 
@@ -110,23 +108,35 @@ def test():
         if func_test(func, inputs[func], exp_outputs[func]) == False:
             return
 
-    # names of the provided test files
+    #computing absolute paths to the directories
+    curr_dir = os.getcwd()
+    origin_dir = os.path.join(curr_dir, 'update_html', 'Original')
+    solution_dir = os.path.join(curr_dir, 'update_html', 'Solution')
+    updated_dir = os.path.join(curr_dir, 'update_html', 'Updated')
+
+    #computing file names
     FILENAME_1 = "table.html"
     FILENAME_2 = "docs.html"
-    # generating names for updated files
+    FILENAME_1_SOL = FILENAME_1[:-5] + '_updated_solution.html'
+    FILENAME_2_SOL = FILENAME_2[:-5] + '_updated_solution.html' 
     FILENAME_1_UPD = FILENAME_1[:-5] + '_updated.html'
     FILENAME_2_UPD = FILENAME_2[:-5] + '_updated.html'
-    # generating names for solution files
-    FILENAME_1_SOL = FILENAME_1[:-5] + '_updated_solution.html'
-    FILENAME_2_SOL = FILENAME_2[:-5] + '_updated_solution.html'    
+
+    #computing file locations
+    file1_loc = os.path.join(origin_dir, FILENAME_1)    
+    file2_loc = os.path.join(origin_dir, FILENAME_2)
+    sol1_loc = os.path.join(solution_dir, FILENAME_1_SOL)
+    sol2_loc = os.path.join(solution_dir, FILENAME_2_SOL)
+    upd1_loc = os.path.join(updated_dir, FILENAME_1_UPD)
+    upd2_loc = os.path.join(updated_dir, FILENAME_2_UPD)  
 
     # running the main function
-    update_file(FILENAME_1, FILENAME_1_UPD)
-    update_file(FILENAME_2, FILENAME_2_UPD)
+    update_file(file1_loc, upd1_loc)
+    update_file(file2_loc, upd2_loc)
     
     # comparing the resulting files with the solution
-    files_are_equal(FILENAME_1_UPD, FILENAME_1_SOL)
-    files_are_equal(FILENAME_2_UPD, FILENAME_2_SOL)
+    files_are_equal(upd1_loc, sol1_loc)
+    files_are_equal(upd2_loc, sol2_loc)
 
     print('----------\nTEST END\n----------\n')
 
@@ -153,14 +163,14 @@ def files_are_equal(file1_name, file2_name):
     find the first location in the files that differ and
     print a small portion of both files around this location
     """
-    print(f"<<< Comparing {file1_name} and {file2_name} >>>")
+    print(f"Comparing:\n{file1_name}\n{file2_name}\n")
 
     WINDOW_SIZE = 10
     
     # open and read both files
-    with open(file1_name, 'r') as input_file:
+    with open(file1_name, 'r', encoding='utf-8') as input_file:
         file1_text = input_file.read()
-    with open(file2_name, 'r') as input_file:
+    with open(file2_name, 'r', encoding='utf-8') as input_file:
         file2_text = input_file.read()
 
     # calculate the shortest file length
@@ -179,13 +189,13 @@ def files_are_equal(file1_name, file2_name):
 
     #check whether one file is a prefix of another    
     if len(file1_text) < len(file2_text):
-        print(file1_name, "is a prefix of", file2_name)
+        print(file1_name + "\nis a prefix of\n" + file2_name)
         return False
     elif len(file2_text) < len(file1_text):
-        print(file2_name, "is a prefix of", file1_name)
+        print(file2_name + "\nis a prefix of\n" + file1_name)
         return False
     else:
-        print(file1_name, "and", file2_name, "are the same\n")
+        print("---> The two files are the same.\n")
         return True
 
 if __name__ == '__main__':
