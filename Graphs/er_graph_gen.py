@@ -1,8 +1,15 @@
 """
 Functions for generating random ER graphs
 """
+import os
+import sys
 import random
 import itertools
+from plot_graph import plot
+
+#importing necessary functions from another module
+sys.path.append(os.path.dirname(__file__) + '\citation_analysis')
+from citation_graph import in_degree_distribution, convert_to_log
 
 
 def er_digraph(num_nodes, prob):
@@ -88,47 +95,48 @@ def test():
     Creates a sample graph of a certain type, with adjustable parameters,
     and then plots it on a normal or log/log scale.    
     '''
-    from application_1 import in_degree_distribution, convert_to_log
-    import matplotlib.pyplot as plt
-
-    NUM_NODES = 5000
-    PROBABILITY = 0.3
-    PLOT_TYPE = 'NORM'
-    GRAPH_TYPE = 'Undirected'
-
-    if GRAPH_TYPE == 'Undirected':
-        a_graph = er_ugraph(NUM_NODES, PROBABILITY)
-    elif GRAPH_TYPE == 'Directed':
-        a_graph = er_digraph(NUM_NODES, PROBABILITY)
+    # get the necessary parameters from user input
+    print('\n<<< PARAMETER RETRIEVAL >>>\n')
+    while True:
+        num_nodes = int(input("Choose a number of nodes for the ER graph.\nRecommended value: < 5000\n"))
+        if num_nodes < 0:
+            print(">>> The number of nodes cannot be negative.\n")
+        else:
+            break
+    while True:
+        probability = float(input("Choose a probability of edge creation.\n"))
+        if not 0 <= probability <= 1:
+            print(">>> The probability must be between 0 and 1.\n")
+        else:
+            break
+    while True:
+        graph_type = input("Choose a type of the graph.\nValid entries: 'undirected' or 'directed'\n")
+        if graph_type not in {'undirected', 'directed'}:
+            print(">>> Invalid graph type.\n")
+        else:
+            break
+    while True:
+        plot_type = input("Choose a type of the plot.\nValid entries: 'normal' or 'log'\n")
+        if plot_type not in {'normal', 'log'}:
+            print(">>> Invalid plot type.\n")
+        else:
+            break
+    
+    # create a random graph with the provided parameters
+    if graph_type == 'undirected':
+        a_graph = er_ugraph(num_nodes, probability)
+    else:
+        a_graph = er_digraph(num_nodes, probability)
 
     # compute in-degree distribution 
     # and duplicate it on a log/log scale
     in_dist_norm = in_degree_distribution(a_graph)
     in_dist_norm_log = convert_to_log(in_dist_norm)
 
-    # sorted by key, return a list of tuples
-    if PLOT_TYPE == 'LOG':
-        lists = sorted(in_dist_norm_log.items())
-    else:
-        lists = sorted(in_dist_norm.items())
+    # plot the distribution
+    plot(in_dist_norm, in_dist_norm_log, plot_type, graph_type)
 
-    # unpack a list of pairs into two tuples
-    x, y = zip(*lists) 
-
-    plt.plot(x, y)
-
-    if PLOT_TYPE == 'LOG':
-        plt.xlabel('log(Number of in-degrees)')
-        plt.ylabel('log(Normalized number of occurrences)')
-    else:
-        plt.xlabel('Number of in-degrees')
-        plt.ylabel('Normalized number of occurrences')        
-    
-    plt.title(f'{GRAPH_TYPE} ER graph in-degree distribution')
-    
-    plt.show()
-
-    print('<<< Done >>>')
+    print('\n<<< Done >>>\n')
 
 
 if __name__ == "__main__":

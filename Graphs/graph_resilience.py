@@ -73,9 +73,11 @@ def compute_resilience(ugraph, attack_order):
 
 def test():
     '''
-    TESTING
+    Testing functions
     '''
-    print('\n', '<<< Testing functions >>>', '\n')
+    print('\n<<< TEST START >>>\n')
+
+    #creating simple graphs for testing
     EX_GRAPH_DIR = {0: set([1, 4, 5]), 1: set([2, 6]), 2: set([3, 7]), \
                 3: set([7]), 4: set([1]), 5: set([2]), 6: set([]), \
                 7: set([3]), 8: set([1, 2]), 9: set([0, 3, 4, 5, 6, 7]), \
@@ -86,28 +88,29 @@ def test():
                     7: set([8, 9]), 8: set([7, 9, 11]), 9: set([7, 8, 10]), \
                     10: set([9, 11]), 11: set([8, 10])}
 
-    # <<< bfs_visited >>>
+    # <<< bfs_visited >>> - PASS
     print('bfs_visited function:')
     print (bfs_visited(EX_GRAPH_DIR, 8))
+    # expected: {1, 2, 3, 6, 7, 8}
     print (bfs_visited(EX_GRAPH_UNDIR, 7), '\n')
-    # - pass
+    # expected: {7, 8, 9, 10, 11}
 
-    # <<< cc_visited >>>
+    # <<< cc_visited >>> - PASS
     print ('cc_visited function:')
     print (cc_visited(EX_GRAPH_UNDIR), '\n')
-    # - pass
+    # expected: [{0, 1, 2, 3, 4, 5, 6}, {7, 8, 9, 10, 11}]
 
-    # <<< largest_cc_size >>>
+    # <<< largest_cc_size >>> - PASS
     print ('largest_cc_size function:')
     print (largest_cc_size(EX_GRAPH_UNDIR), '\n')
-    # - pass
+    # expected: 7
 
-    # <<< compute_resilience >>>
+    # <<< compute_resilience >>> - PASS
     print ('compute_resilience function:')
     print (compute_resilience(EX_GRAPH_UNDIR, [0, 9, 1, 2, 8]), '\n')
-    # - pass
+    # expected: [7, 6, 6, 4, 4, 2]
 
-    print('<<< DONE >>>')
+    print('<<< TEST END >>>\n')
 
 
 if __name__ == "__main__":

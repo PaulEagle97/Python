@@ -1,6 +1,7 @@
 """
 This is a set of functions for loading, analyzing and plotting of graphs, 
 which are represented using dictionaries.
+Loads and analyses a real citation graph if run as script.
 """
 import matplotlib.pyplot as plt
 import urllib.request
@@ -167,14 +168,25 @@ def main():
     Loads a provided citation graph for 27,770 high energy physics theory papers.
     Computes the in-degree distribution for the graph and then plots it.
     """
-    PLOT_TYPE = 'LOG'
+    #get the plot type from user
+    while True:
+        plot_type = input("Choose a type of the plot.\nValid entries: 'normal' or 'log'\n")
+        if plot_type not in {'normal', 'log'}:
+            print(">>> Invalid plot type.\n")
+        else:
+            break
+
+    #load the citation graph
     CITATION_URL = "http://storage.googleapis.com/codeskulptor-alg/alg_phys-cite.txt"
     citation_graph = load_graph(CITATION_URL)
+    GRAPH_TYPE = 'Citation graph'
+
+    #compute distributions
     citation_dist_norm = in_degree_distribution(citation_graph)
     citation_dist_norm_log = convert_to_log(citation_dist_norm)
 
     # sorted by key, return a list of tuples
-    if PLOT_TYPE == 'LOG':
+    if plot_type == 'log':
         lists = sorted(citation_dist_norm_log.items())
     else:
         lists = sorted(citation_dist_norm.items())
@@ -184,14 +196,14 @@ def main():
 
     plt.plot(x, y)
 
-    if PLOT_TYPE == 'LOG':
+    if plot_type == 'log':
         plt.xlabel('log(Number of in-degrees)')
         plt.ylabel('log(Normalized number of occurrences)')
     else:
         plt.xlabel('Number of in-degrees')
         plt.ylabel('Normalized number of occurrences')        
     
-    plt.title('Citation graph in-degree distribution')
+    plt.title(f'{GRAPH_TYPE} in-degree distribution')
     
     plt.show()
 
