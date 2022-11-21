@@ -1,11 +1,19 @@
 """
-This is a set of functions for loading, analyzing and plotting of graphs, 
-which are represented using dictionaries.
-Loads and analyses a real citation graph if run as script.
+Application #1 of the course "Algorithmic Thinking (Part 1)"
+
+This is a set of functions for analyzing the in-degree distribution of graphs, which are represented using dictionaries.
+If run as a script, it loads and analyses a provided citation graph for 27,770 high-energy physics theory papers.
 """
+import os
+import sys
+import math
 import matplotlib.pyplot as plt
 import urllib.request
-import math
+
+#importing plotting function from another module
+path = os.path.dirname(__file__)
+sys.path.append(os.path.join(path, os.pardir))
+from plot_graph import plot
 
 
 def load_graph(graph_url):
@@ -20,7 +28,7 @@ def load_graph(graph_url):
     graph_lines = graph_text.split('\n')
     graph_lines = graph_lines[ : -1]
     
-    print ("Loaded graph with", len(graph_lines), "nodes")
+    print (">>> Loaded graph with", len(graph_lines), "nodes.")
     
     answer_graph = {}
     for line in graph_lines:
@@ -165,10 +173,10 @@ def convert_to_log(a_dict):
 
 def main():
     """
-    Loads a provided citation graph for 27,770 high energy physics theory papers.
-    Computes the in-degree distribution for the graph and then plots it.
+    Loads a real citation graph, computes and plots its in-degree distribution.
     """
-    #get the plot type from user
+    #get the plot type from the user
+    print('\n<<< PARAMETER RETRIEVAL >>>\n')
     while True:
         plot_type = input("Choose a type of the plot.\nValid entries: 'normal' or 'log'\n")
         if plot_type not in {'normal', 'log'}:
@@ -179,35 +187,16 @@ def main():
     #load the citation graph
     CITATION_URL = "http://storage.googleapis.com/codeskulptor-alg/alg_phys-cite.txt"
     citation_graph = load_graph(CITATION_URL)
-    GRAPH_TYPE = 'Citation graph'
+    GRAPH_TYPE = 'Citation'
 
     #compute distributions
     citation_dist_norm = in_degree_distribution(citation_graph)
     citation_dist_norm_log = convert_to_log(citation_dist_norm)
 
-    # sorted by key, return a list of tuples
-    if plot_type == 'log':
-        lists = sorted(citation_dist_norm_log.items())
-    else:
-        lists = sorted(citation_dist_norm.items())
+    # plot the distribution
+    plot(citation_dist_norm, citation_dist_norm_log, plot_type, GRAPH_TYPE)
 
-    # unpack a list of pairs into two tuples
-    x, y = zip(*lists) 
-
-    plt.plot(x, y)
-
-    if plot_type == 'log':
-        plt.xlabel('log(Number of in-degrees)')
-        plt.ylabel('log(Normalized number of occurrences)')
-    else:
-        plt.xlabel('Number of in-degrees')
-        plt.ylabel('Normalized number of occurrences')        
-    
-    plt.title(f'{GRAPH_TYPE} in-degree distribution')
-    
-    plt.show()
-
-    print('<<< DONE >>>')
+    print('\n<<< Done >>>\n')
 
 
 if __name__ == '__main__':

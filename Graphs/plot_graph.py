@@ -1,8 +1,8 @@
 '''
-Functions for plotting a provided graph distribution, represented as a dictionary 
-and saving the plot image using matplotlib.
+Function for plotting a provided graph distribution, represented as a dictionary.
 '''
 import matplotlib.pyplot as plt
+
 
 def plot(dict_norm, dict_log, plot_type, graph_type):
 
