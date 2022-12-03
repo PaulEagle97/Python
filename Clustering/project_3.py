@@ -27,7 +27,7 @@ def slow_closest_pair(cluster_list):
     Output: tuple of the form (dist, idx1, idx2) where the centers of the clusters
     cluster_list[idx1] and cluster_list[idx2] have minimum distance dist.       
     """
-    min_dist, idx1, idx2 = math.inf, -1, -1
+    min_dist, idx1, idx2 = float('inf'), -1, -1
 
     for cluster_idx1 in cluster_list:
         for cluster_idx2 in cluster_list:
