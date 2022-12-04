@@ -28,16 +28,17 @@ def slow_closest_pair(cluster_list):
     cluster_list[idx1] and cluster_list[idx2] have minimum distance dist.       
     """
     min_dist, idx1, idx2 = float('inf'), -1, -1
+    cluster_idxs = range(len(cluster_list))
 
-    for cluster_idx1 in cluster_list:
-        for cluster_idx2 in cluster_list:
+    for cluster_idx1 in cluster_idxs:
+        for cluster_idx2 in cluster_idxs:
             if cluster_idx1 == cluster_idx2:
                 break
             curr_dist = pair_distance(cluster_list, cluster_idx1, cluster_idx2)
-            if curr_dist < min_dist:
-                min_dist = curr_dist
-                idx1 = cluster_idx1
-                idx2 = cluster_idx2
+            if curr_dist[0] < min_dist:
+                min_dist = curr_dist[0]
+                idx1 = min(cluster_idx1, cluster_idx2)
+                idx2 = max(cluster_idx1, cluster_idx2)
     
     return min_dist, idx1, idx2
 
@@ -57,17 +58,17 @@ def fast_closest_pair(cluster_list):
         return slow_closest_pair(cluster_list)
 
     mid_idx = cluster_num // 2
-    dist_l, idx1_l, idx2_l = fast_closest_pair(cluster_list[ :mid_idx])
-    dist_r, idx1_r, idx2_r = fast_closest_pair(cluster_list[mid_idx: ])
+    dist_l, idx_l1, idx_l2 = fast_closest_pair(cluster_list[ :mid_idx])
+    dist_r, idx_r1, idx_r2 = fast_closest_pair(cluster_list[mid_idx: ])
 
     if dist_l < dist_r:
         min_dist = dist_l
-        idx1 = idx1_l
-        idx2 = idx2_l
+        idx1 = idx_l1
+        idx2 = idx_l2
     else:
         min_dist = dist_r
-        idx1 = idx1_r + mid_idx
-        idx2 = idx2_r + mid_idx
+        idx1 = idx_r1 + mid_idx
+        idx2 = idx_r2 + mid_idx
 
     horiz1 = cluster_list[mid_idx - 1].horiz_center()
     horiz2 = cluster_list[mid_idx].horiz_center()
@@ -95,8 +96,25 @@ def closest_pair_strip(cluster_list, horiz_center, half_width):
     Output: tuple of the form (dist, idx1, idx2) where the centers of the clusters
     cluster_list[idx1] and cluster_list[idx2] lie in the strip and have minimum distance dist.       
     """
+    strip_idxs = []
+    min_dist, min_idx1, min_idx2 = float('inf'), -1, -1
 
-    return ()
+    for idx, cluster in enumerate(cluster_list):
+        if abs(cluster.horiz_center() - horiz_center) < half_width:
+            strip_idxs.append(idx)
+
+    strip_idxs.sort(key = lambda cluster_idx: cluster_list[cluster_idx].vert_center())
+    strip_len = len(strip_idxs)
+
+    for idx1 in range(strip_len - 1):
+        for idx2 in range(idx1 + 1, min(idx1 + 3, strip_len - 1) + 1):
+            curr_dist = pair_distance(cluster_list, strip_idxs[idx1], strip_idxs[idx2])
+            if curr_dist[0] < min_dist:
+                min_dist = curr_dist[0]
+                min_idx1 = min(strip_idxs[idx1], strip_idxs[idx2])
+                min_idx2 = max(strip_idxs[idx1], strip_idxs[idx2])
+
+    return min_dist, min_idx1, min_idx2
             
  
 def hierarchical_clustering(cluster_list, num_clusters):
@@ -124,3 +142,7 @@ def kmeans_clustering(cluster_list, num_clusters, num_iterations):
             
     return []
 
+
+if __name__ == '__main__':
+    test = closest_pair_strip([alg_cluster.Cluster(set([]), 0, 0, 1, 0), alg_cluster.Cluster(set([]), 1, 0, 1, 0), alg_cluster.Cluster(set([]), 2, 0, 1, 0), alg_cluster.Cluster(set([]), 3, 0, 1, 0)], 1.5, 1.0)
+    print(test)
