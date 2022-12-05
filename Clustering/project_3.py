@@ -1,8 +1,9 @@
 """
-
+This module contains a set of functions for clustering a set of points
+with each point representing a specific county in USA with parameters
+specified as class instance attributes in (alg_cluster) module
 """
 
-import math
 import alg_cluster
 
 
@@ -125,8 +126,15 @@ def hierarchical_clustering(cluster_list, num_clusters):
     Input: List of clusters, integer number of clusters
     Output: List of clusters whose length is num_clusters
     """
-    
-    return []
+    while len(cluster_list) > num_clusters:
+        cluster_list.sort(key = lambda cluster: cluster.horiz_center())
+        _, idx1, idx2 = fast_closest_pair(cluster_list)
+
+        cluster1, cluster2 = cluster_list[idx1], cluster_list[idx2]
+        cluster1.merge_clusters(cluster2)
+        cluster_list.remove(cluster2)
+
+    return cluster_list
 
 
 def kmeans_clustering(cluster_list, num_clusters, num_iterations):
@@ -139,10 +147,21 @@ def kmeans_clustering(cluster_list, num_clusters, num_iterations):
     """
 
     # position initial clusters at the location of clusters with largest populations
-            
-    return []
+    old_clusters = sorted(cluster_list, key = lambda cluster: cluster.total_population(), reverse=True)[ :num_clusters]
 
+    for _ in range (num_iterations):
+        new_clusters = []
+        for _ in range (num_clusters):
+            new_clusters.append(alg_cluster.Cluster(set([]), 0, 0, 0, 0))
+        for county in cluster_list:
+            min_dist = float('inf')
+            for idx, cluster in enumerate(old_clusters):
+                curr_dist = county.distance(cluster)
+                if curr_dist < min_dist:
+                    min_dist = curr_dist
+                    closest_cluster_idx = idx
+            new_clusters[closest_cluster_idx].merge_clusters(county)
+        old_clusters = list(new_clusters)
 
-if __name__ == '__main__':
-    test = closest_pair_strip([alg_cluster.Cluster(set([]), 0, 0, 1, 0), alg_cluster.Cluster(set([]), 1, 0, 1, 0), alg_cluster.Cluster(set([]), 2, 0, 1, 0), alg_cluster.Cluster(set([]), 3, 0, 1, 0)], 1.5, 1.0)
-    print(test)
+    return old_clusters
+
