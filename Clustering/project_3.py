@@ -117,8 +117,8 @@ def closest_pair_strip(cluster_list, horiz_center, half_width):
 
     return min_dist, min_idx1, min_idx2
             
- 
-def hierarchical_clustering(cluster_list, num_clusters):
+
+def hierarchical_clustering(cluster_list, num_clusters, *_):
     """
     Compute a hierarchical clustering of a set of clusters
     Note: the function may mutate cluster_list
