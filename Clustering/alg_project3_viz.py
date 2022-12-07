@@ -5,9 +5,9 @@ clusters of county-based cancer risk data
 
 import math
 import urllib.request
-import alg_cluster
-import project_3
-import alg_clusters_matplotlib
+from alg_cluster import Cluster
+from project_3 import kmeans_clustering, hierarchical_clustering
+from alg_clusters_matplotlib import plot_clusters
 
 
 def load_data_table(data_url):
@@ -63,7 +63,7 @@ def run_visualization(url):
             print(">>> Invalid clustering type.\n")
         else:
             break
-    clust_funcs ={'kmeans': project_3.kmeans_clustering, 'hierarchical': project_3.hierarchical_clustering, \
+    clust_funcs ={'kmeans': kmeans_clustering, 'hierarchical': hierarchical_clustering, \
                   'sequential': sequential_clustering}
     if clustering_type == 'kmeans':
         while True:
@@ -92,13 +92,13 @@ def run_visualization(url):
     
     singleton_list = []
     for line in data_table:
-        singleton_list.append(alg_cluster.Cluster(set([line[0]]), line[1], line[2], line[3], line[4]))
+        singleton_list.append(Cluster(set([line[0]]), line[1], line[2], line[3], line[4]))
     
     cluster_list = clust_funcs[clustering_type](singleton_list, num_clusters, num_iter)
     print (f"Displaying {len(cluster_list)} {clustering_type} clusters")
 
     # draw the clusters using matplotlib
-    alg_clusters_matplotlib.plot_clusters(data_table, cluster_list, center_viz[cluster_centers])
+    plot_clusters(data_table, cluster_list, center_viz[cluster_centers])
 
     print("\n<<< Done >>>\n")
     
@@ -112,4 +112,4 @@ if __name__ == '__main__':
     DATA_290_URL = DIRECTORY + "data_clustering/unifiedCancerData_290.csv"
     DATA_111_URL = DIRECTORY + "data_clustering/unifiedCancerData_111.csv"
 
-    run_visualization(DATA_3108_URL)
+    run_visualization(DATA_111_URL)

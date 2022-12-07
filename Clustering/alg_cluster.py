@@ -116,10 +116,7 @@ class Cluster:
         in the cluster to the cluster center (weighted by its population)
         """
         # Build hash table to accelerate error computation
-        fips_to_line = {}
-        for line_idx in range(len(data_table)):
-            line = data_table[line_idx]
-            fips_to_line[line[0]] = line_idx
+        fips_to_line = {line[0]:line_idx for line_idx, line in enumerate (data_table)}
         
         # compute error as weighted squared distance from counties to cluster center
         total_error = 0

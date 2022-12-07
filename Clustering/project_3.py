@@ -1,5 +1,5 @@
 """
-This module contains a set of functions for clustering a set of points
+This module contains functions for clustering a set of points
 with each point representing a specific county in USA with parameters
 specified as class instance attributes in (alg_cluster) module
 """
@@ -148,7 +148,6 @@ def kmeans_clustering(cluster_list, num_clusters, num_iterations):
 
     # position initial clusters at the location of clusters with largest populations
     old_clusters = sorted(cluster_list, key = lambda cluster: cluster.total_population(), reverse=True)[ :num_clusters]
-
     for _ in range (num_iterations):
         new_clusters = []
         for _ in range (num_clusters):
