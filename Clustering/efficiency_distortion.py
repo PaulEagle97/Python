@@ -85,23 +85,58 @@ def plot_efficiency (min_size, max_size):
     plt.show()
 
 
-if __name__ == '__main__':
-
-    #plot_efficiency(2, 200)
-
-    NUM_CLUSTERS = 9
+def plot_distortion(min_size, max_size, url):
+    '''
+    Computes and plots the distortion for (hierarchical_clustering)
+    and (kmeans_clustering) algorithms for the range of [min_size : max_size] 
+    clusters obtained from the data provided via an external (url) link
+    '''
     NUM_ITER = 5
-    DIRECTORY = "http://commondatastorage.googleapis.com/codeskulptor-assets/"
-    DATA_290_URL = DIRECTORY + "data_clustering/unifiedCancerData_290.csv"
-    DATA_111_URL = DIRECTORY + "data_clustering/unifiedCancerData_111.csv"
-
-    data_table = load_data_table(DATA_111_URL)
+    data_table = load_data_table(url)
     
     singleton_list = []
     for line in data_table:
         singleton_list.append(Cluster(set([line[0]]), line[1], line[2], line[3], line[4]))
-
-    cluster_list = kmeans_clustering(singleton_list, NUM_CLUSTERS, NUM_ITER)
-    distortion = compute_distortion(cluster_list, data_table)
-    print ('Distortion:', distortion)
     
+    x_vals = []
+    y_vals_hierarchical = []
+    y_vals_kmeans = []
+    clusters_hierarchical = hierarchical_clustering(list(singleton_list), 21)
+    
+    for num_clusters in range (max_size, min_size - 1, -1):
+        x_vals.insert(0, num_clusters)
+        #compute (num_clusters) clusters for both funcs
+        clusters_hierarchical = hierarchical_clustering(clusters_hierarchical, num_clusters)
+        clusters_kmeans = kmeans_clustering(singleton_list, num_clusters, NUM_ITER)
+        #compute the distortion for both funcs and append to y-values
+        y_vals_hierarchical.insert(0, compute_distortion(clusters_hierarchical, data_table))
+        y_vals_kmeans.insert(0, compute_distortion(clusters_kmeans, data_table))
+
+    #assign title and axis names
+    plt.title(f'Distortions for {len(data_table)} county data set')
+    plt.xlabel('Number of clusters')
+    plt.ylabel('Distortion')  
+    
+    #plot the distortions
+    plt.plot(x_vals, y_vals_hierarchical, '-b', label = 'Hierarchical')
+    plt.plot(x_vals, y_vals_kmeans, '-r', label = 'K-means')
+    plt.legend(loc = 'upper right', title = f'({min_size}, {max_size})\nnum_iter = {NUM_ITER}')
+
+    #exhibit the graphs
+    plt.show()    
+
+
+if __name__ == '__main__':
+
+    DIRECTORY = "http://commondatastorage.googleapis.com/codeskulptor-assets/"
+    DATA_3108_URL = DIRECTORY + "data_clustering/unifiedCancerData_3108.csv"
+    DATA_896_URL = DIRECTORY + "data_clustering/unifiedCancerData_896.csv"
+    DATA_290_URL = DIRECTORY + "data_clustering/unifiedCancerData_290.csv"
+    DATA_111_URL = DIRECTORY + "data_clustering/unifiedCancerData_111.csv"
+    
+
+    # uncomment one of the functions below to perform analysis
+
+    #plot_efficiency(2, 200)
+    plot_distortion(6, 20, DATA_290_URL)
+

@@ -121,7 +121,7 @@ def closest_pair_strip(cluster_list, horiz_center, half_width):
 def hierarchical_clustering(cluster_list, num_clusters, *_):
     """
     Compute a hierarchical clustering of a set of clusters
-    Note: the function may mutate cluster_list
+    Note: the function mutates cluster_list
     
     Input: List of clusters, integer number of clusters
     Output: List of clusters whose length is num_clusters
@@ -140,7 +140,6 @@ def hierarchical_clustering(cluster_list, num_clusters, *_):
 def kmeans_clustering(cluster_list, num_clusters, num_iterations):
     """
     Compute the k-means clustering of a set of clusters
-    Note: the function may not mutate cluster_list
     
     Input: List of clusters, integers number of clusters and number of iterations
     Output: List of clusters whose length is num_clusters
