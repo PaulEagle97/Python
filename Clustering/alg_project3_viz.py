@@ -1,6 +1,6 @@
 """
-Example code for creating and visualizing
-clusters of county-based cancer risk data
+Creating and visualizing clusters of county-based cancer risk data
+using three different clustering algorithms
 """
 
 import math

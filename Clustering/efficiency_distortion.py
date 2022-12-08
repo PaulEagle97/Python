@@ -1,4 +1,13 @@
 """
+Application #3 of the course "Algorithmic Thinking (Part 2)"
+
+This is a set of functions for analyzing several sets of 2D data that include information about lifetime cancer risk from air toxics,
+as well as an efficiency between a brute force and optimized algorithms for computing the closest pair of 2D points.
+
+If run as a script, it can follow one of two routes:
+1) Loads and analyses a real-life data set where each entry corresponds to a county in the USA and includes 
+information on the total population of the county and its per-capita lifetime cancer risk due to air toxics.
+2) Runs two specified functions with an input, determined by a user, and analyses their run times.
 """
 import random
 import matplotlib.pyplot as plt
