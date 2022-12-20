@@ -16,3 +16,22 @@ def build_scoring_matrix(alphabet, diag_score, off_diag_score, dash_score):
             scoring_matrix[matrix_row][matrix_col] = score
 
     return scoring_matrix
+
+def compute_alignment_matrix(seq_x, seq_y, scoring_matrix, global_flag):
+    rows = range(len(seq_x) + 1)
+    cols = range(len(seq_y) + 1)
+
+    align_matrix = []
+    for row in rows:
+        align_matrix.append([])
+        for col in cols:
+            align_matrix[-1].append(0)
+    
+    
+
+
+
+    for row in rows:
+        print (align_matrix[row])
+
+compute_alignment_matrix("bc", "bde", 0, 0)
