@@ -77,12 +77,32 @@ if __name__ == "__main__":
     CONSENSUS_PAX_URL = "http://storage.googleapis.com/codeskulptor-alg/alg_ConsensusPAXDomain.txt"
     WORD_LIST_URL = "http://storage.googleapis.com/codeskulptor-assets/assets_scrabble_words3.txt"
 
+    scoring_matrix = read_scoring_matrix(PAM50_URL)
     human_protein = read_protein(HUMAN_EYELESS_URL)
     fly_protein = read_protein(FRUITFLY_EYELESS_URL)
-    scoring_matrix = read_scoring_matrix(PAM50_URL)
-    
+    consensus = read_protein(CONSENSUS_PAX_URL)
+
     allignment_matrix = helper_module.compute_alignment_matrix(human_protein, fly_protein, scoring_matrix, False)
-    local_allignment = helper_module.compute_local_alignment(human_protein, fly_protein, scoring_matrix, allignment_matrix)
-    print(local_allignment)
-    
-    
+    score, human_local, fly_local = helper_module.compute_local_alignment(human_protein, fly_protein, scoring_matrix, allignment_matrix)
+    print(score)
+
+    human_local = human_local.replace("-", "")
+    fly_local = fly_local.replace("-", "")
+
+    human_consensus = helper_module.compute_global_alignment(human_local, consensus, scoring_matrix, allignment_matrix)
+    fly_consensus = helper_module.compute_global_alignment(fly_local, consensus, scoring_matrix, allignment_matrix)
+
+    counter = 0
+    for idx in range(len(human_consensus[1])):
+        if human_consensus[1][idx] == human_consensus[2][idx]:
+            counter += 1
+    human_perc = counter / len(human_consensus[1]) * 100
+    print (human_perc)
+
+    counter = 0
+    for idx in range(len(fly_consensus[1])):
+        if fly_consensus[1][idx] == fly_consensus[2][idx]:
+            counter += 1
+    fly_perc = counter / len(fly_consensus[1]) * 100
+    print (fly_perc)
+
