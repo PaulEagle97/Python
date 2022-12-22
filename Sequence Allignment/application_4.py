@@ -67,6 +67,53 @@ def read_words(filename):
     return word_list
 
 
+def generate_null_distribution(seq_x, seq_y, scoring_matrix, num_trials):
+    scoring_distribution = {}
+    for iter in range(num_trials):
+        rand_y = list(seq_y)
+        random.shuffle(rand_y)
+        align_m = helper_module.compute_alignment_matrix(seq_x, rand_y, scoring_matrix, False)
+        score = helper_module.compute_local_alignment(seq_x, rand_y, scoring_matrix, align_m)[0]
+        if score in scoring_distribution:
+            scoring_distribution[score] += 1
+        else:
+            scoring_distribution[score] = 1
+        print(f"Nº of trials: {iter + 1}")
+    
+    return scoring_distribution
+
+
+def plot_distribution(dist, num_trials):
+    """
+    Plots a bar chart for the normalized
+    null distribution with (num_trials) 
+    using two protein sequences.
+    """
+    # sorted by key, return a list of tuples
+    lists = sorted(dist.items())
+
+    # unpack a list of pairs into two tuples
+    x_vals, y_vals = zip(*lists)
+
+    # create normalized score values
+    y_vals_norm = []
+    for y_val in y_vals:
+        y_vals_norm.append(y_val / num_trials)
+
+    # plot the graph
+    plt.bar(x_vals, y_vals_norm)
+
+    # mark 'x' and 'y' axis accordingly
+    plt.xlabel('Score')
+    plt.ylabel('Fraction of total trials')        
+    
+    # assign a title
+    plt.title('Null normalized distribution')
+
+    plt.legend(loc = 'upper right', title = f'Number of trials:\n{NUM_TRIALS}')
+    
+    # exhibit the plot
+    plt.show()
 
 
 if __name__ == "__main__":
@@ -82,15 +129,19 @@ if __name__ == "__main__":
     fly_protein = read_protein(FRUITFLY_EYELESS_URL)
     consensus = read_protein(CONSENSUS_PAX_URL)
 
+    # Question 1
     allignment_matrix = helper_module.compute_alignment_matrix(human_protein, fly_protein, scoring_matrix, False)
     score, human_local, fly_local = helper_module.compute_local_alignment(human_protein, fly_protein, scoring_matrix, allignment_matrix)
     print(score)
 
+    # Question 2
     human_local = human_local.replace("-", "")
     fly_local = fly_local.replace("-", "")
 
-    human_consensus = helper_module.compute_global_alignment(human_local, consensus, scoring_matrix, allignment_matrix)
-    fly_consensus = helper_module.compute_global_alignment(fly_local, consensus, scoring_matrix, allignment_matrix)
+    allignment_matrix_human = helper_module.compute_alignment_matrix(human_local, consensus, scoring_matrix, True)
+    human_consensus = helper_module.compute_global_alignment(human_local, consensus, scoring_matrix, allignment_matrix_human)
+    allignment_matrix_fly = helper_module.compute_alignment_matrix(fly_local, consensus, scoring_matrix, True)
+    fly_consensus = helper_module.compute_global_alignment(fly_local, consensus, scoring_matrix, allignment_matrix_fly)
 
     counter = 0
     for idx in range(len(human_consensus[1])):
@@ -105,4 +156,23 @@ if __name__ == "__main__":
             counter += 1
     fly_perc = counter / len(fly_consensus[1]) * 100
     print (fly_perc)
+
+    # Question 3
+    amino_acids = list("ACBEDGFIHKMLNQPSRTWVYXZ")
+    rand_seq = ""
+    for _ in range(len(consensus)):
+        rand_gene = random.choice(amino_acids)
+        rand_seq += rand_gene
+    
+    counter = 0
+    for idx in range(len(consensus)):
+        if rand_seq[idx] == consensus[idx]:
+            counter += 1
+    rand_perc = counter / len(consensus) * 100
+    print (rand_perc)
+
+    # Question 4
+    NUM_TRIALS = 1000
+    null_dist = generate_null_distribution(human_protein, fly_protein, scoring_matrix, NUM_TRIALS)
+    plot_distribution(null_dist, NUM_TRIALS)
 
