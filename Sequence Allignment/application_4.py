@@ -68,8 +68,16 @@ def read_words(filename):
 
 
 def generate_null_distribution(seq_x, seq_y, scoring_matrix, num_trials):
+    """
+    Computes the null distribution of scores between two sequences
+    by shuffling one of them (num_trials) times and calculating the score
+    of local alignment for each trial.
+
+    Returns a dictinary with keys corresponding to score values and values
+    to the number of occurencies of the particular score.
+    """
     scoring_distribution = {}
-    for iter in range(num_trials):
+    for _ in range(num_trials):
         rand_y = list(seq_y)
         random.shuffle(rand_y)
         align_m = helper_module.compute_alignment_matrix(seq_x, rand_y, scoring_matrix, False)
@@ -78,7 +86,6 @@ def generate_null_distribution(seq_x, seq_y, scoring_matrix, num_trials):
             scoring_distribution[score] += 1
         else:
             scoring_distribution[score] = 1
-        print(f"Nº of trials: {iter + 1}")
     
     return scoring_distribution
 
@@ -108,7 +115,7 @@ def plot_distribution(dist, num_trials):
     plt.ylabel('Fraction of total trials')        
     
     # assign a title
-    plt.title('Null normalized distribution')
+    plt.title('Normalized null distribution')
 
     plt.legend(loc = 'upper right', title = f'Number of trials:\n{NUM_TRIALS}')
     
@@ -132,7 +139,7 @@ if __name__ == "__main__":
     # Question 1
     allignment_matrix = helper_module.compute_alignment_matrix(human_protein, fly_protein, scoring_matrix, False)
     score, human_local, fly_local = helper_module.compute_local_alignment(human_protein, fly_protein, scoring_matrix, allignment_matrix)
-    print(score)
+    print("Human - fly local alignment score:", score)
 
     # Question 2
     human_local = human_local.replace("-", "")
@@ -148,14 +155,14 @@ if __name__ == "__main__":
         if human_consensus[1][idx] == human_consensus[2][idx]:
             counter += 1
     human_perc = counter / len(human_consensus[1]) * 100
-    print (human_perc)
+    print (f"Human vs consensus: {human_perc}%")
 
     counter = 0
     for idx in range(len(fly_consensus[1])):
         if fly_consensus[1][idx] == fly_consensus[2][idx]:
             counter += 1
     fly_perc = counter / len(fly_consensus[1]) * 100
-    print (fly_perc)
+    print (f"Fly vs consensus: {fly_perc}%")
 
     # Question 3
     amino_acids = list("ACBEDGFIHKMLNQPSRTWVYXZ")
@@ -169,10 +176,18 @@ if __name__ == "__main__":
         if rand_seq[idx] == consensus[idx]:
             counter += 1
     rand_perc = counter / len(consensus) * 100
-    print (rand_perc)
+    print (f"Random vs consensus: {rand_perc}%")
 
     # Question 4
     NUM_TRIALS = 1000
     null_dist = generate_null_distribution(human_protein, fly_protein, scoring_matrix, NUM_TRIALS)
     plot_distribution(null_dist, NUM_TRIALS)
+
+    # Question 5
+    mean = sum([key * val for key, val in null_dist.items()]) / NUM_TRIALS
+    st_dev = math.sqrt(sum([((key - mean) ** 2) * val for key, val in null_dist.items()]) / NUM_TRIALS)
+    z_score = (score - mean) / st_dev
+    print("Mean of the distribution:", mean)
+    print("Standard deviation of the distribution:", st_dev)
+    print("Z-score of a human-fly local alignment:", z_score)
 
