@@ -1,4 +1,6 @@
 """
+A set of functions + script for comparing two genetic sequences represented as strings,
+as well as implementing a spelling correction based on the edit distance concept.
 """
 import math
 import random
@@ -6,7 +8,7 @@ import urllib.request
 
 import matplotlib.pyplot as plt
 import project_4 as helper_module
-    
+
 
 def read_scoring_matrix(filename):
     """
@@ -123,7 +125,32 @@ def plot_distribution(dist, num_trials):
     plt.show()
 
 
+def check_spelling(checked_word, dist, word_list):
+    """
+    iterates through (word_list) and returns the set of all words 
+    that are within edit distance (dist) of the string (checked_word).
+    """
+    DIAG_SCORE = 2 
+    OFF_DIAG_SCORE = 1 
+    DASH_SCORE = 0
+    ALPHABET = set(["a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", \
+                    "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"])
+    scoring_matrix = helper_module.build_scoring_matrix(ALPHABET, DIAG_SCORE, OFF_DIAG_SCORE, DASH_SCORE)
+    a_like = set()
+    for word in word_list:
+        alig_m = helper_module.compute_alignment_matrix(checked_word, word, scoring_matrix, True)
+        glob_alig = helper_module.compute_global_alignment(checked_word, word, scoring_matrix, alig_m)
+        ed_dist = len(checked_word) + len(word) - glob_alig[0]
+        if ed_dist == dist:
+            a_like.add(word)
+    
+    return a_like
+
+
 if __name__ == "__main__":
+    """
+    Runs a script for solving problems from the Application #4
+    """
     # URLs for data files
     PAM50_URL = "http://storage.googleapis.com/codeskulptor-alg/alg_PAM50.txt"
     HUMAN_EYELESS_URL = "http://storage.googleapis.com/codeskulptor-alg/alg_HumanEyelessProtein.txt"
@@ -131,14 +158,19 @@ if __name__ == "__main__":
     CONSENSUS_PAX_URL = "http://storage.googleapis.com/codeskulptor-alg/alg_ConsensusPAXDomain.txt"
     WORD_LIST_URL = "http://storage.googleapis.com/codeskulptor-assets/assets_scrabble_words3.txt"
 
+    # loading the necessary external data sets
     scoring_matrix = read_scoring_matrix(PAM50_URL)
     human_protein = read_protein(HUMAN_EYELESS_URL)
     fly_protein = read_protein(FRUITFLY_EYELESS_URL)
     consensus = read_protein(CONSENSUS_PAX_URL)
+    word_list = read_words(WORD_LIST_URL)
 
     # Question 1
     allignment_matrix = helper_module.compute_alignment_matrix(human_protein, fly_protein, scoring_matrix, False)
     score, human_local, fly_local = helper_module.compute_local_alignment(human_protein, fly_protein, scoring_matrix, allignment_matrix)
+    print("Human local alignment:", human_local)
+    print("Fly local alignment:", fly_local)
+    print(len(human_local) == len(fly_local))
     print("Human - fly local alignment score:", score)
 
     # Question 2
@@ -190,4 +222,10 @@ if __name__ == "__main__":
     print("Mean of the distribution:", mean)
     print("Standard deviation of the distribution:", st_dev)
     print("Z-score of a human-fly local alignment:", z_score)
+
+    # Question 8
+    humble_1 = check_spelling("humble", 1, word_list)
+    firefly_2 = check_spelling("firefly", 2, word_list)
+    print("Humble - 1 editing distance:", humble_1)
+    print("Firefly - 2 editing distances:", firefly_2)
 
